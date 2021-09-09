@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="jp">
+  <head>
+
+    <meta charset="UTF-8" />
+    <title>YamazakiChartsJs</title>
+  </head>
+  <body>
+    <div id="YamazakiChartsJs">
+      <h3>{{message1}}</h3>
+      <h3>{{message2}}</h3>
+      <p>とよたイノベーションセンター IoT研究会に公開します。各自の利用・改変はご自由にどうぞ。</p>
+      <hr>
+      ステータスを選択して下さい<br>
+      <input type="radio" name="hyouka" value="4" v-model="picked">停止
+      <input type="radio" name="hyouka" value="0" v-model="picked" checked="checked">稼働
+      <input type="radio" name="hyouka" value="1" v-model="picked">段取り
+      <input type="radio" name="hyouka" value="2" v-model="picked">異常発生
+      <input type="radio" name="hyouka" value="3" v-model="picked">計画停止
+      
+      <hr>
+      <!-- <span>Picked: {{ picked }}</span><br> -->
+      ガントチャートに加算する時間（分）を入力して下さい<br>
+      <input v-model="NowMinuts" placeholder="シミュレーションの分を入力してね">
+      <button @click="RunReset">リセット</button>
+      <button v-on:click="GuntPush">データ追加</button><br>
+      <hr>
+      <!-- <p>Message is: {{ NowMinuts }}</p><br> -->
+      <svg width="320" height="240" viewBox="0 0 300 240" mt-0>
+        <rect x="10" y="0" width="272" height="230" fill='#EEEEEE' stroke="blue" stroke-width="1" />
+        <!-- <text x="0" y="0" font-family="Verdana" font-size="12" fill="gray">基準</text> -->
+      
+        <line x1="50" y1="28" x2="50" y2="220" stroke="red" />
+        <line x1="107.5" y1="28" x2="107.5" y2="220" stroke="darkgray" />
+        <line x1="165" y1="28" x2="165" y2="220" stroke="darkgray" />
+        <line x1="222.5" y1="28" x2="222.5" y2="220" stroke="darkgray" />
+      
+        <text x="46" y="20" font-family="Verdana" font-size="12" fill="gray">0</text>
+        <text x="100" y="20" font-family="Verdana" font-size="12" fill="gray">15</text>
+        <text x="157.5" y="20" font-family="Verdana" font-size="12" fill="gray">30</text>
+        <text x="215" y="20" font-family="Verdana" font-size="12" fill="gray">45</text>
+      
+        <text x="15" y="50" font-family="Verdana" font-size="12" fill="gray">AM 7</text>
+        <text x="38" y="64" font-family="Verdana" font-size="12" fill="gray">8</text>
+        <text x="38" y="79" font-family="Verdana" font-size="12" fill="gray">9</text>
+        <text x="32" y="95" font-family="Verdana" font-size="12" fill="gray">10</text>
+        <text x="32" y="110" font-family="Verdana" font-size="12" fill="gray">11</text>
+        <text x="15" y="125" font-family="Verdana" font-size="12" fill="gray">PM12</text>
+        <text x="38" y="140" font-family="Verdana" font-size="12" fill="gray">1</text>
+        <text x="38" y="155" font-family="Verdana" font-size="12" fill="gray">2</text>
+        <text x="38" y="170" font-family="Verdana" font-size="12" fill="gray">3</text>
+        <text x="38" y="185" font-family="Verdana" font-size="12" fill="gray">4</text>
+        <text x="38" y="200" font-family="Verdana" font-size="12" fill="gray">5</text>
+        <text x="38" y="216" font-family="Verdana" font-size="12" fill="gray">6</text>
+      
+      
+        <!-- https://www.it-mure.jp.net/ja/vuejs2/vue警告：重複キーが検出されました：x%E3%80%82これにより、更新エラーが発生する場合があります/806372717/ ❐❐❐❐重要！これでようやくエラー回避できた-->
+        <path :d=path fill="none" stroke="gray" stroke-width="9" v-for="(path, idx) of GuntArryWait" :key="idx" />
+        <path :d=path2 fill="none" stroke="rgb(0,255,0)" stroke-width="9" v-for="(path2, idx) of GuntArryRUN"
+          :key="'A'+idx" />
+        <path :d=path3 fill="none" stroke="yellow" stroke-width="9" v-for="(path3, idx) of GuntArryDDR" :key="'B'+idx" />
+        <path :d=path4 fill="red" stroke="pink" stroke-width="9" v-for="(path4, idx) of GuntArryKKT" :key="'C' + idx" />
+        <path :d=path5 fill="red" stroke="red" stroke-width="9" v-for="(path5, idx) of GuntArryERR" :key="'D' + idx" />
+      
+        <line x1="12" y1="38" x2="280" y2="38" stroke="red" stroke-width="2" />
+        <line x1="12" y1="53" x2="280" y2="53" stroke="black" stroke-width="1" />
+        <line x1="10" y1="68" x2="280" y2="68" stroke="darkgray" />
+        <line x1="10" y1="83" x2="280" y2="83" stroke="black" stroke-width="1" />
+        <line x1="10" y1="98" x2="280" y2="98" stroke="darkgray" />
+        <line x1="10" y1="113" x2="280" y2="113" stroke="red" stroke-width="2" />
+        <line x1="10" y1="128" x2="280" y2="128" stroke="darkgray" />
+        <line x1="10" y1="143" x2="280" y2="143" stroke="black" stroke-width="1" />
+        <line x1="10" y1="158" x2="280" y2="158" stroke="darkgray" />
+        <line x1="10" y1="173" x2="280" y2="173" stroke="black" stroke-width="1" />
+        <line x1="10" y1="188" x2="280" y2="188" stroke="darkgray" />
+        <line x1="10" y1="203" x2="280" y2="203" stroke="red" stroke-width="2" />
+      
+      </svg><br>
+      <hr>
+          <h5>{{message3}}</h5>
+    </div>
+      <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+      <script>
+      let YamaCharts = new Vue({
+        el:"#YamazakiChartsJs",
+        data:{
+          picked: "0",
+          message1: '- YamazakiChartsJs -',
+          message2: 'おそらく世界初！時間毎ガントチャート by SVG',
+          message3: 'Copyright  Yamzaki Akihiro 2021-Aug a.yamazaki1971@gmail.com',
+
+
+          pushCounter:0,
+          GuntStartSeconds: 0,
+
+          startDate:new Date(),
+          endDate:new Date(),
+
+
+          NowMinuts: 20,
+
+          GuntArryWait: ["M165, 45 h77", "M261, 45 h15", "M65, 60 h12", "M96, 60 h8", "M123, 60   h19", "M161, 60 h31", "M211, 60 h4", "M234, 60 h4", "M257, 60 h19", "M65, 75 h12", "M96, 75 h19", "M58, 90 h19", "M154, 90 h8", "M238, 90 h12", "M96, 105 h38", "M211, 105 h19", "M269, 105 h11", "M50, 120 h27", "M211, 150 h19", "M154, 180 h8", "M169, 180 h4", "M180, 180 h8", "M111, 195 h4", "M127, 195 h4", "M142, 195 h4", "M157, 195 h4", "M173, 195 h12","M196, 195 h4", "M230, 195 h19", "M269, 195 h11", "M50, 210 h46"],
+          GuntArryRUN: ["M242, 45 h19", "M276, 45 h4", "M50, 60 h15", "M77, 60 h19", "M104, 60 h19", "M142, 60 h19", "M192, 60 h19", "M215, 60 h19", "M238, 60 h19", "M276, 60 h4", "M50, 75 h15", "M77, 75 h19", "M211, 75 h69", "M50, 90 h8", "M77, 90 h77", "M161, 90 h77", "M249, 90 h31", "M50, 105 h46", "M134, 105 h77", "M230, 105 h12", "M77, 120 h77", "M115, 165 h115", "M161, 180 h8", "M173, 180 h8", "M115, 195 h12", "M131, 195 h12", "M146, 195 h12", "M161, 195 h12", "M184, 195 h12", "M200, 195 h12", "M211, 195 h19", "M249, 195 h19", "M96, 210 h19"],
+          GuntArryDDR: ["M115, 75 h96", "M261, 105 h8", "M230, 150 h50", "M50, 165 h65", "M188, 180 h92", "M50, 195 h61"],
+          GuntArryKKT: ["M242, 105 h19", "M230, 165 h50", "M50, 180 h104"],
+          GuntArryERR: ["M154, 120 h126", "M50, 135 h230", "M50, 150 h161", "M115, 210 h153"],
+
+          i:0
+        },
+        methods:{
+
+          GuntPush: function (StartDate, EndDate) {
+              // console.log("OK!");
+              //サンプルデータの生成
+              //初回の場合、朝７時３０分をスタート時間にセットする
+              if (this.pushCounter == 0) {
+                this.startDate.setHours(7, 30, 0);
+
+                //指定された分秒数を加算した時間をエンド時間としてセット
+                this.endDate.setHours(7,30,0)
+                let tmpM= this.endDate.getMinutes() +  Number(this.NowMinuts);
+                // console.log(tmpM);
+                this.endDate.setMinutes(tmpM);
+
+              } else {
+                // ２回以降の場合
+
+                // this.startDate = this.endDate; 
+                  //→クーっ！！痛恨のミス！！この表記では、同じ変数となってしまう(T_T)
+                
+                //前回の終了時間をスタート時間としてセットする、
+                 this.startDate.setHours(this.endDate.getHours(), this.endDate.getMinutes(), this.endDate.getSeconds()); 
+
+                // ユーザー指定の分数を、スタート時間の分に足した時間をエンド時間とする
+                let M2 = Number(this.startDate.getMinutes()) + Number(this.NowMinuts);
+                console.log("M2は、、、"+ M2);
+                this.endDate.setMinutes(M2);
+              }
+              //スタート時間とエンド時間の時刻の時（Hours）が同じであれば・・・、
+              //  単純な比較（エンド時間−スタート時間）となる。
+              this.GuntStartSeconds = this.startDate.getMinutes() * 60 + this.startDate.getSeconds();
+              if (this.startDate.getHours() == this.endDate.getHours()) {
+                //スタート時刻を秒で表す
+                
+                // スタート時間とエンド時間の差分を秒で表す
+                let TimeDeff_org = new Date();
+                TimeDeff_org = this.endDate - this.startDate;
+                
+                // ↓これが、配列へのPUSHのコアプログラム
+                // ここまでで生成した、スタート時間と経過分数の秒と、
+                // ステータス選択のオプションボタンの変数であるpickedを引数として渡している。
+                this.GuntArryPush(this.GuntStartSeconds, (TimeDeff_org/1000), (this.startDate.getHours() - 4) * 15, this.picked);
+                this.pushCounter ++;
+                console.log(this.pushCounter);
+              } else {
+
+                
+                //１時間をまたいだ終了時の時刻連番を基準時刻にセット
+                let nowTgtDEndZero = new Date();
+                nowTgtDEndZero.setHours(this.endDate.getHours(), this.endDate.getMinutes(), this.endDate.getSeconds());
+                
+                let TgtHStart = this.startDate.getHours();
+                nowTgtDEndZero.setHours(Number(TgtHStart) + 1);    //基準時刻の時を＋１の時刻にセット
+                nowTgtDEndZero.setMinutes(0);                      //基準時刻の分をゼロにセット
+                nowTgtDEndZero.setSeconds(0);                      //基準時刻の分をゼロにセット
+                //第一領域(Startから次の時刻の00分までの時間）
+                console.log("スタートは"+this.startDate);
+                console.log("エンドは、"+this.endDate);
+                // let nowDeff = new Date(nowTgtDEndZero - this.startDate);
+                let nowDeff = (nowTgtDEndZero - this.startDate) /1000;
+                console.log("nowDeff"+ nowDeff);
+                // let ByouHenkanMin = nowDeff.getMinutes() * 60;
+                // let ByouHenkanSec = nowDeff.getSeconds();
+                // let ByouHenkan = ByouHenkanMin + ByouHenkanSec;
+
+                this.GuntArryPush(this.GuntStartSeconds, nowDeff, (this.startDate.getHours() - 4) * 15, this.picked);
+
+                // //第二領域(二時間以上乖離している場合の中間)の時間
+                let HoursDeff = Number(this.endDate.getHours()) - Number(this.startDate.getHours());
+                console.log("▲"+HoursDeff);
+                this.i = 0;
+                for (this.i = 1; this.i < HoursDeff; this.i ++) {
+                  this.GuntArryPush(0, 3600, (this.startDate.getHours() - 4 + this.i ) * 15, this.picked);
+                }
+                this.GuntStartSeconds = this. startDate.getMinutes() * 60 + this.startDate.getSeconds();
+
+                nowTgtDEndZero.setHours(this.endDate.getHours());
+                // //第三領域時＋１の時間を計算する
+                let nowDeff3rd = new Date(this.endDate - nowTgtDEndZero);
+                // // console.log(nowDeff3rd);
+                let ByouHenkanMin3rd = nowDeff3rd.getUTCMinutes() * 60;
+                let ByouHenkanSec3rd = nowDeff3rd.getUTCSeconds();
+                let ByouHenkanSec3rd_Total = ByouHenkanMin3rd + ByouHenkanSec3rd;
+
+                this.GuntArryPush(0, ByouHenkanSec3rd_Total, (this.startDate.getHours() - 4 + this.i) * 15, this.picked);
+
+                this.pushCounter++;
+                // console.log(this.GuntArryRUN);
+                // console.log(this.GuntArryDDR);
+                // console.log(this.guntArryWait);
+                // console.log(this.GuntArryERR);
+                // console.log(this.GuntArryKKT);
+              }
+            },
+
+            RunReset(){
+              this.GuntArryRUN.splice(-this.GuntArryRUN.length)
+              this.GuntArryDDR.splice(-this.GuntArryDDR.length)
+              this.GuntArryERR.splice(-this.GuntArryERR.length)
+              this.GuntArryKKT.splice(-this.GuntArryKKT.length)
+              this.GuntArryWait.splice(-this.GuntArryWait.length)
+            },
+            GuntArryPush(GuntStartSeconds, TimeDeff_Seconds, y, NowState) {
+
+              console.log(GuntStartSeconds+"---"+TimeDeff_Seconds + "---" +y + "---" +NowState)
+
+              let GS = Math.round(GuntStartSeconds * 230 / 3600 * 10 / 10) + 50;
+              let GH = Math.round(TimeDeff_Seconds * 230 / 3600 * 10 / 10);
+
+              // これが、AVGのPATHの記述
+              let Gattai = "M" + GS + "," + y + " h" + GH;
+
+              switch (Number(NowState)) {
+                case 0:
+                  try {
+                    this.GuntArryRUN.push(Gattai);
+                  } catch (e) {
+                    console.log(e)
+                  };
+                  break;
+                case 1:
+                  try {
+                    // console.log(Gattai);
+                    this.GuntArryDDR.push(Gattai);
+                    console.log(this.GuntArryDDR);
+
+                  } catch (e) {
+                    console.log(e)
+                  };
+                  break;
+                case 2:
+                  try {
+                    this.GuntArryERR.push(Gattai);
+                  } catch (e) {
+                    console.log(e)
+                  };
+                  break;
+                case 3:
+                  try {
+                    this.GuntArryKKT.push(Gattai);
+                  } catch (e) {
+                    console.log(e)
+                  };
+                  break;
+                case 4:
+                  try {
+                    this.GuntArryWait.push(Gattai);
+                  } catch (e) {
+                    console.log(e)
+                  }
+                  break;
+                default:
+              };
+
+            },
+          }
+
+      })
+    </script>
+  </body>
+</html>
