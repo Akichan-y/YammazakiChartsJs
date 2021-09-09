@@ -204,6 +204,9 @@
             },
 
             RunReset(){
+              this.pushCounter = 0;
+              this.GuntStartSeconds = 0;
+              
               this.GuntArryRUN.splice(-this.GuntArryRUN.length)
               this.GuntArryDDR.splice(-this.GuntArryDDR.length)
               this.GuntArryERR.splice(-this.GuntArryERR.length)
